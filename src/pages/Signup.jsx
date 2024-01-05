@@ -105,7 +105,7 @@ const Auth = ({ setUser }) => {
             text: "Login Successful!",
             icon: "success"
           });
-          navigate("/list");
+          navigate("/advice-list");
         }
         else{
           toast.error('Not a user')
