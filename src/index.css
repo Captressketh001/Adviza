@@ -1,0 +1,126 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@800&display=swap');
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Manrope', sans-serif;
+  --bg-color: hsl(218, 23%, 16%);
+  --bg-color-main: hsl(217, 19%, 24%);
+  --text-color: hsl(150, 100%, 66%);
+  --quote-color: hsl(193, 38%, 86%);
+}
+
+ 
+body {
+  width: 100%;
+}
+div.main-container{
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--bg-color);
+}
+main{
+  background-color: var(--bg-color-main);
+  border-radius: 0.5rem;
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+main p, main small{
+  color: var(--text-color);
+  text-transform: uppercase;
+}
+
+main p{
+  padding: 0 1.25rem;
+}
+main q{
+  color: var(--quote-color);
+  font-size: 1.25rem;
+}
+picture{
+  margin: 1rem 0;
+}
+.icon{
+  width: 3.438rem;
+    height: 3.438rem;
+    background-color: rgb(129 140 248);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    top: 1.5rem;
+    cursor: pointer;
+}
+.icon:hover{
+    box-shadow: 0px 0px 20px 0px rgb(129 140 248);
+}
+@media screen and (min-width: 720px){
+  main{
+    width: 70%;
+    padding: 1.25rem 1.25rem 0 1.25rem;
+  }
+  main q{
+    font-size: 1.75rem;
+  }
+}
+@media screen and (min-width: 1020px){
+  main{
+    width: 50%;
+  }
+  main q{
+    font-size: 1.75rem;
+  }
+}
+
+/* h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+} */
