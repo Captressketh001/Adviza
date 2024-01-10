@@ -2,10 +2,10 @@ import { Fragment, useRef, useState, useEffect } from "react";
 import { Disclosure, Menu, Transition, Dialog } from "@headlessui/react";
 import {
   ExclamationTriangleIcon,
-  UserCircleIcon
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { app } from "../../init";
@@ -26,6 +26,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../init";
 
 const db = getFirestore(app);
+
 const SignupSchema = Yup.object().shape({
   author: Yup.string().min(6, "Minimum of 6 Character!").required("Required"),
   content: Yup.string()
@@ -37,10 +38,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Example = ({ user }) => {
-  console.log(user)
+const List = ({ user }) => {
   const [open, setOpen] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [openSignOut, setOpenSignOut] = useState(false);
   const cancelButtonRef = useRef(null);
@@ -49,21 +48,44 @@ const Example = ({ user }) => {
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddMode, setIsAddMode] = useState(true);
   let navigate = useNavigate();
 
-  const logOut = async () => {
-    try {
-      Swal.showLoading()
-      await signOut(auth);
-      Swal.close()
-      navigate('/signup')
-    } catch (err) {
-      Swal.close()
-      toast.error(err);
+  const initialValues = isAddMode
+    ? {
+        author: "",
+        content: "",
+      }
+    : { author, content };
+
+  const onSubmit = (fields, { setStatus, setSubmitting }) => {
+    setStatus();
+    if (isAddMode) {
+      addAdvice(fields.author, fields.content, setSubmitting);
+    } else {
+      updateAdvice(fields.author, fields.content, setSubmitting);
     }
   };
-  const addAdvice = async (author, content) => {
-    Swal.showLoading()
+  const fetchAdvice = async () => {
+    Swal.showLoading();
+    await getDocs(collection(db, "advice"))
+      .then((querySnapshot) => {
+        const newData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        setAdvices(newData);
+        setIsLoading(false);
+        Swal.close();
+      })
+      .catch((error) => {
+        toast.error("Error Fetching Advice List", error);
+        setIsLoading(false);
+        Swal.close();
+      });
+  };
+  const addAdvice = async (author, content, setSubmitting) => {
+    Swal.showLoading();
     setOpenAdd(false);
     try {
       await addDoc(collection(db, "advice"), {
@@ -72,21 +94,26 @@ const Example = ({ user }) => {
         status: false,
       });
       toast.success("Advice Added Successfully");
-      Swal.showLoading()
-      fetchAdvice()
+      Swal.showLoading();
+      fetchAdvice();
     } catch (e) {
       toast.error("Error Adding Advice: ", e);
+      setSubmitting(false);
     }
   };
   const deleteAdvice = async (id) => {
     setOpen(false);
     try {
       await deleteDoc(doc(db, "advice", id));
-      fetchAdvice()
+      fetchAdvice();
       toast.success("Advice deleted Successfully");
     } catch (e) {
       toast.error("Error deleting Advice: ", e);
     }
+  };
+  const handleDelete = (id) => {
+    setAdviceId(id);
+    setOpen(true);
   };
   const updateStatus = (id, status) => {
     const docRef = doc(db, "advice", id);
@@ -100,12 +127,12 @@ const Example = ({ user }) => {
       })
       .catch((error) => {
         toast.error("Error updating status", error);
-        console.log(error)
       });
   };
 
-  const updateAdvice = (author, content) => {
-    setOpenEdit(false);
+  const updateAdvice = (author, content, setSubmitting) => {
+    Swal.showLoading();
+    setOpenAdd(false);
     const docRef = doc(db, "advice", adviceid);
     let data = {
       author: author,
@@ -114,55 +141,49 @@ const Example = ({ user }) => {
     updateDoc(docRef, data)
       .then(() => {
         toast.success("Advice Status Updated!");
+        Swal.showLoading();
+        fetchAdvice();
       })
       .catch((error) => {
         toast.error("Error updating status", error);
+        setSubmitting(false);
       });
   };
-  const fetchAdvice = async () => {
-    Swal.showLoading()
-    await getDocs(collection(db, "advice"))
-      .then((querySnapshot) => {
-        const newData = querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-        setAdvices(newData);
-        setIsLoading(false);
-        Swal.close()
-      })
-      .catch((error) => {
-        toast.error("Error Fetching Advice List", error);
-        setIsLoading(false);
-        Swal.close()
-      });
-  };
-  useEffect(() => {
-    
-    fetchAdvice();
-  }, []);
-
   const handleEdit = (advice) => {
     setAdviceId(advice.id);
     setAuthor(advice.author);
     setContent(advice.content);
-    setOpenEdit(true);
+    setOpenAdd(true);
+    setIsAddMode(false);
   };
-  const handleDelete = (id) => {
-    setAdviceId(id);
-    setOpen(true);
+  const logOut = async () => {
+    try {
+      Swal.showLoading();
+      await signOut(auth);
+      Swal.close();
+      navigate("/signup");
+    } catch (err) {
+      Swal.close();
+      toast.error(err);
+    }
   };
+  useEffect(() => {
+    fetchAdvice();
+  }, []);
 
   return (
     <>
       <Disclosure as="nav" className="bg-indigo-800">
-        { (
+        {
           <>
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
               <div className="relative flex h-16 items-center justify-between">
                 <div className="absolute inset-y-0 left-0 flex items-center">
                   {/* Mobile menu button*/}
-                  <div className="flex flex-shrink-0 items-center text-white cursor-pointer" onClick={(() => navigate('/'))}>
+                  <div
+                    className="flex flex-shrink-0 items-center text-white cursor-pointer"
+                    onClick={() => navigate("/")}
+                  >
                     ADVIZA ADMIN
                   </div>
                 </div>
@@ -185,21 +206,30 @@ const Example = ({ user }) => {
                   </div>
                 </div> */}
                 </div>
-                <p className="text-white text-xs hidden sm:block">Welcome, {user?.name}</p>
+                <p className="text-white text-xs hidden sm:block">
+                  Welcome, {user?.name}
+                </p>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  
-
                   {/* Profile dropdown */}
                   <Menu as="div" className="relative ml-3">
-                    
                     <div>
                       <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm">
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">User Image</span>
-                        <img className="h-8 w-8 rounded-full" src={user?.profile_pix ? user?.profile_pix : <UserCircleIcon
-                          className="h-6 w-6 text-red-600"
-                          aria-hidden="true"
-                        />} alt="" />
+                        <img
+                          className="h-8 w-8 rounded-full"
+                          src={
+                            user?.profile_pix ? (
+                              user?.profile_pix
+                            ) : (
+                              <UserCircleIcon
+                                className="h-6 w-6 text-red-600"
+                                aria-hidden="true"
+                              />
+                            )
+                          }
+                          alt=""
+                        />
                       </Menu.Button>
                     </div>
                     <Transition
@@ -220,7 +250,7 @@ const Example = ({ user }) => {
                                 active ? "bg-gray-100" : "",
                                 "block px-4 py-2 text-sm text-gray-700"
                               )}
-                              onClick={(() => setOpenSignOut(true))}
+                              onClick={() => setOpenSignOut(true)}
                             >
                               Sign out
                             </a>
@@ -229,8 +259,6 @@ const Example = ({ user }) => {
                       </Menu.Items>
                     </Transition>
                   </Menu>
-                  
-                 
                 </div>
               </div>
             </div>
@@ -254,22 +282,21 @@ const Example = ({ user }) => {
             </div>
           </Disclosure.Panel> */}
           </>
-        )}
+        }
       </Disclosure>
 
       <div style={{ width: "95%", margin: "0 auto" }}>
         <div className="relative overflow-x-auto shadow-md mt-5 mb-5">
-        <div className="flex justify-between items-center">
-          <p className="mx-2">List of all advices</p>
-        <button
-                    type="button"
-                    onClick={() => setOpenAdd(true)}
-                    
-                    className="inline-flex sm:w-auto m-2 bg-indigo-700 justify-center rounded-md  px-3 py-2 text-sm font-semibold text-white text-left shadow-sm  w-auto"
-                  >
-                    Add Advice
-                  </button>
-        </div>
+          <div className="flex justify-between items-center">
+            <p className="mx-2">List of all advices</p>
+            <button
+              type="button"
+              onClick={() => setOpenAdd(true)}
+              className="inline-flex sm:w-auto m-2 bg-indigo-700 justify-center rounded-md  px-3 py-2 text-sm font-semibold text-white text-left shadow-sm  w-auto"
+            >
+              Add Advice
+            </button>
+          </div>
           <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 ">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
@@ -525,131 +552,6 @@ const Example = ({ user }) => {
           </div>
         </Dialog>
       </Transition.Root>
-      <Transition.Root show={openEdit} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-10"
-          initialFocus={cancelButtonRef}
-          onClose={setOpenEdit}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                enterTo="opacity-100 translate-y-0 sm:scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              >
-                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                  <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    <div className="sm:flex sm:items-start">
-                      <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                        <Dialog.Title
-                          as="h3"
-                          className="text-base font-semibold leading-6 text-gray-900"
-                        >
-                          Edit advice
-                        </Dialog.Title>
-                        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                          <Formik
-                            initialValues={{
-                              author: author,
-                              content: content,
-                            }}
-                            validationSchema={SignupSchema}
-                            onSubmit={(values) => {
-                              updateAdvice(values.author, values.content);
-                            }}
-                          >
-                            {({ errors, touched }) => (
-                              <Form className="space-y-6">
-                                <div>
-                                  <label
-                                    htmlFor="email"
-                                    className="block text-sm font-medium leading-6 text-gray-900"
-                                  >
-                                    Author
-                                  </label>
-                                  <div className="mt-2">
-                                    <Field
-                                      name="author"
-                                      type="text"
-                                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                    {errors.author && touched.author ? (
-                                      <div className="text-sm text-red-400">
-                                        {errors.author}
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                </div>
-                                <div>
-                                  <label
-                                    htmlFor="content"
-                                    className="block text-sm font-medium leading-6 text-gray-900"
-                                  >
-                                    Content
-                                  </label>
-                                  <div className="mt-2">
-                                    <Field
-                                      name="content"
-                                      as="textarea"
-                                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                    {errors.author && touched.author ? (
-                                      <div className="text-sm text-red-400">
-                                        {errors.author}
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                </div>
-                                <div></div>
-                                <div></div>
-                              </Form>
-                            )}
-                          </Formik>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button
-                      type="submit"
-                      className="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                      // onClick={() => updateAdvice()}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                      onClick={() => setOpenEdit(false)}
-                      ref={cancelButtonRef}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition.Root>
       <Transition.Root show={openAdd} as={Fragment}>
         <Dialog
           as="div"
@@ -688,84 +590,80 @@ const Example = ({ user }) => {
                           as="h3"
                           className="text-base font-semibold leading-6 text-gray-900"
                         >
-                          Add a new advice
+                          {isAddMode ? "Add a new advice" : "Edit Advice"}
                         </Dialog.Title>
                         <div className="mt-10 sm:mx-auto sm:w-full ">
                           <Formik
-                            initialValues={{
-                              author: "",
-                              content: "",
-                            }}
+                            initialValues={initialValues}
                             validationSchema={SignupSchema}
-                            onSubmit={(values) => {
-                              console.log(values, "values");
-                              addAdvice(values.author, values.content);
-                            }}
+                            onSubmit={onSubmit}
                           >
-                            {({ errors, touched }) => (
-                              <Form className="space-y-6 ">
-                                <div>
-                                  <label
-                                    htmlFor="author"
-                                    className="block text-sm font-medium leading-6 text-gray-900"
-                                  >
-                                    Author
-                                  </label>
-                                  <div className="mt-2">
-                                    <Field
-                                      name="author"
-                                      type="text"
-                                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                    {errors.author && touched.author ? (
-                                      <div className="text-sm text-red-400">
-                                        {errors.author}
-                                      </div>
-                                    ) : null}
+                            {({ errors, touched, isSubmitting }) => {
+                              return (
+                                <Form className="space-y-6 ">
+                                  <div>
+                                    <label
+                                      htmlFor="author"
+                                      className="block text-sm font-medium leading-6 text-gray-900"
+                                    >
+                                      Author
+                                    </label>
+                                    <div className="mt-2">
+                                      <Field
+                                        name="author"
+                                        type="text"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                      />
+                                      {errors.author && touched.author ? (
+                                        <div className="text-sm text-red-400">
+                                          {errors.author}
+                                        </div>
+                                      ) : null}
+                                    </div>
                                   </div>
-                                </div>
-                                <div>
-                                  <label
-                                    htmlFor="content"
-                                    className="block text-sm font-medium leading-6 text-gray-900"
-                                  >
-                                    Content
-                                  </label>
-                                  <div className="mt-2">
-                                    <Field
-                                      name="content"
-                                      as="textarea"
-                                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                    {errors.content && touched.content ? (
-                                      <div className="text-sm text-red-400">
-                                        {errors.content}
-                                      </div>
-                                    ) : null}
+                                  <div>
+                                    <label
+                                      htmlFor="content"
+                                      className="block text-sm font-medium leading-6 text-gray-900"
+                                    >
+                                      Content
+                                    </label>
+                                    <div className="mt-2">
+                                      <Field
+                                        name="content"
+                                        as="textarea"
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                      />
+                                      {errors.content && touched.content ? (
+                                        <div className="text-sm text-red-400">
+                                          {errors.content}
+                                        </div>
+                                      ) : null}
+                                    </div>
                                   </div>
-                                </div>
-                                <div></div>
-                                <div></div>
-                                <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                  <button
-                                    type="Submit"
-                                    className="inline-flex  w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
-                                    // onClick={addAdvice}
-                                  >
-                                    Create
-                                  </button>
+                                  <div></div>
+                                  <div></div>
+                                  <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                    <button
+                                      type="Submit"
+                                      disabled={isSubmitting}
+                                      className="inline-flex  w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
+                                    >
+                                      {isAddMode ? "Create" : "Update"}
+                                    </button>
 
-                                  <button
-                                    type="button"
-                                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                                    onClick={() => setOpenAdd(false)}
-                                    ref={cancelButtonRef}
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </Form>
-                            )}
+                                    <button
+                                      type="button"
+                                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                                      onClick={() => setOpenAdd(false)}
+                                      ref={cancelButtonRef}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </Form>
+                              );
+                            }}
                           </Formik>
                         </div>
                       </div>
@@ -780,6 +678,6 @@ const Example = ({ user }) => {
       <ToastContainer />
     </>
   );
-}
+};
 
-export default Example;
+export default List;

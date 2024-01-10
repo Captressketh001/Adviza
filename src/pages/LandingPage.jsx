@@ -22,7 +22,7 @@ const LandingPage = () => {
               <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Need Tech Inspiration?
                 <br />
-                Start using  Advisa today.
+                Start using  Adviza today.
               </h2>
               <p className="mt-6 text-lg leading-8 text-gray-300">
                 Get access to inspiring quotes from Top Tech Leaders on LinkedIn.
