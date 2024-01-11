@@ -73,9 +73,6 @@ To run the project in your local environment, follow these steps:
 3. Run `npm run start` or `yarn start` to get the project started.
 4. Open [http://localhost:5173](http://localhost:5173) (or the address shown in your console) in your web browser to view the app.
 
-## 🍿 Video
-
-https://github.com/mirayatech/NinjaSketch/assets/71933266/6a16c9e5-6380-4317-96e7-d132768f7b40
 
 ### Links
 
