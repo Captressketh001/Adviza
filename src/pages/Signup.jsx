@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useEffect } from "react";
-import { signInWithEmailAndPassword, signInWithRedirect } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 const SignupSchema = Yup.object().shape({
@@ -63,7 +63,7 @@ const Auth = ({ setUser }) => {
   const signInWithGoogle = async () => {
     Swal.showLoading();
     try {
-      const result = await signInWithRedirect(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
         Swal.fire({
           title: "",
@@ -122,7 +122,7 @@ const Auth = ({ setUser }) => {
                   <Field
                     name="email"
                     type="email"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block formik-input w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                   {errors.email && touched.email ? (
                     <div className="text-sm text-red-400">{errors.email}</div>
@@ -153,7 +153,7 @@ const Auth = ({ setUser }) => {
                     autoComplete="current-password"
                     type="password"
                     required
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block formik-input w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                   {errors.password && touched.password ? (
                     <div className="text-sm text-red-400">

@@ -30,7 +30,7 @@ const Advice = () => {
           }
         });
         setShuffledDocuments(shuffleDocuments(newData));
-        setDisplayedAdvice(newData[0]);
+        setDisplayedAdvice(newData[3]);
         setIsLoading(false); // Initially display the first advice
       } catch (error) {
         toast.error("Error fetching advice:", error);

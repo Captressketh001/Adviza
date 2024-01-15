@@ -361,27 +361,32 @@ const List = ({ user }) => {
                       {advice.status ? "Approved" : "Pending Approval"}
                     </td>
                     <td className="px-6 py-4 border border-slate-300 text-center">
+                      {user.email === 'shininglite2012@gmail.com' ? 
+                      <>
                       <button
-                        type="button"
-                        className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                        onClick={() => handleEdit(advice)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800"
-                        onClick={() => handleDelete(advice.id)}
-                      >
-                        Delete
-                      </button>
-                      <button
+                      type="button"
+                      className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                      onClick={() => handleEdit(advice)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800"
+                      onClick={() => handleDelete(advice.id)}
+                    >
+                      Delete
+                    </button> 
+                    <button
                         type="button"
                         className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"
                         onClick={() => updateStatus(advice.id, !advice.status)}
                       >
                         Set Status
-                      </button>
+                      </button></>
+                    : <></>}
+                      
+                      
                     </td>
                   </tr>
                 ))
@@ -612,7 +617,7 @@ const List = ({ user }) => {
                                       <Field
                                         name="author"
                                         type="text"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block formik-input w-full rounded-md border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                       />
                                       {errors.author && touched.author ? (
                                         <div className="text-sm text-red-400">
@@ -632,7 +637,7 @@ const List = ({ user }) => {
                                       <Field
                                         name="content"
                                         as="textarea"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block formik-input w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                       />
                                       {errors.content && touched.content ? (
                                         <div className="text-sm text-red-400">

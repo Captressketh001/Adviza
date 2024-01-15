@@ -17,7 +17,9 @@
   --quote-color: hsl(193, 38%, 86%);
 }
 
- 
+.formik-input{
+  padding: 0.75rem;
+}
 body {
   width: 100%;
 }

@@ -1,4 +1,4 @@
-# 🥷🏽 Adviza
+# Adviza
 
 An Inspirational app for techies. Developer's get access to inspiring qoutes from Top Tech Leaders and Creator on LinkedIn. Firebase is used to store and retrieve advices. React and TailwindCSS is used for the interface design. I built this side project for the purpose of mastering React after doing Vue.JS for 2 years. The app is fully responsive and can adapt to user's devices. 
 
@@ -41,7 +41,7 @@ During this project, I've being able to master some React concepts and Firebase 
 
 - **Loading data on first time Load**: Using the `useEffect` hook reminded me of the onMounted hook in vue.js.
 
-###  `React Router` Hook:
+###  `React Router`:
 
 - **Protecting a route from unathorized access**: I learnt how to protect a route from unauthorized access using prop drilling.
 
@@ -51,12 +51,12 @@ During this project, I've being able to master some React concepts and Firebase 
 
 ### 🎨 Using Tailwind CSS:
 
-- **New Tools**: I used Tailwind css extensively for the first time in this project.
+- **New Tools**: I used Tailwind css extensively for the first time in this project. I've always loved to write vanilla css but I'm blown off with Tailwind CSS features.
 
 
 ### 📈 Overall Growth:
 
-Each part of this project challenged me to learn something new even though I'm not new to development.
+Each part of this project challenged me to learn something new things even though I'm not new to development.
 
 ## 💭 How can it be improved?
 
@@ -70,7 +70,7 @@ To run the project in your local environment, follow these steps:
 
 1. Clone the repository to your local machine.
 2. Run `npm install` or `yarn` in the project directory to install the required dependencies.
-3. Run `npm run start` or `yarn start` to get the project started.
+3. Run `npm run dev` or `yarn dev` to get the project started.
 4. Open [http://localhost:5173](http://localhost:5173) (or the address shown in your console) in your web browser to view the app.
 
 
